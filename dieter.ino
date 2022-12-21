@@ -14,6 +14,10 @@
  */
 
 #define PIN_BUILTIN_LED 13
+#define PIN_STATE_C 12
+#define PIN_RELAY_1 11
+#define PIN_RELAY_2 10
+
 uint32_t lasttime_500ms;
 uint32_t lasttime_5ms;
 uint16_t n5ms;
@@ -39,6 +43,14 @@ void task500ms(void) {
 void setup() {
     pinMode(PIN_BUILTIN_LED, OUTPUT);
     digitalWrite(PIN_BUILTIN_LED, 0);
+
+    pinMode(PIN_STATE_C, OUTPUT);
+    pinMode(PIN_RELAY_1, OUTPUT);
+    pinMode(PIN_RELAY_2, OUTPUT);
+    digitalWrite(PIN_STATE_C    , 0);
+    digitalWrite(PIN_RELAY_1    , 1);
+    digitalWrite(PIN_RELAY_2    , 1);
+    
     analogReference(INTERNAL); /* internal 1.1V reference voltage of the ATMega 328 */
     Serial.begin(19200);
     Serial.println(F("Starte..."));  
@@ -73,6 +85,10 @@ void handleRemoteRequests(void) {
           Serial.println(serial_debug_value16, DEC);
           if (serial_debug_value16<256) {
             digitalWrite(PIN_BUILTIN_LED, (serial_debug_value16 & 1)!=0);
+            digitalWrite(PIN_STATE_C    , (serial_debug_value16 & 1)!=0);
+            digitalWrite(PIN_RELAY_1    , (serial_debug_value16 & 2)==0);
+            digitalWrite(PIN_RELAY_2    , (serial_debug_value16 & 4)==0);
+
           }
         }    
         for (i=0; i<SERIAL_FIFO_LEN; i++) { /* clean the FIFO */
